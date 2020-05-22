@@ -1,0 +1,38 @@
+{
+    "containers":[
+        {
+            "name":"clientapi",
+            "hostname":"clientapi",
+            "url":"https://jkm-marburg.de/pcsm/clientapi/clientapi.tar.gz",
+            "ports":[
+                {
+                    "external":447,
+                    "internal":443
+                }
+            ],
+            "networks":[
+                {
+                    "name":"schoolconnect"
+                },
+                {
+                    "name":"mysql-net"
+                }
+            ],
+            "volumes":[],
+            "environment":[
+                "GLOBAL_PASSWORD",
+                "MYSQL_PASSWORD",
+                "MYSQL_USER",
+                "MYSQL_DATABASE"
+            ]
+        }
+    ],
+    "volumes":[],
+    "networks":[],
+    "environment":[
+        {
+            "name":"GLOBAL_PASSWORD",
+            "description":"Globales Passwort, das in den Client-Konfgurationsdateien angegeben wird."
+        }
+    ]
+}
