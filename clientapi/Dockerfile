@@ -8,8 +8,7 @@ USER root
 
 RUN apt-get update && apt-get install -y --no-install-recommends nginx php-fpm php-mysql wakeonlan
 
-COPY client.php /var/www/html/
-COPY register.php /var/www/html/
+COPY php/* /var/www/html/
 COPY default /etc/nginx/sites-enabled/
 
 RUN mkdir /etc/clientapi
