@@ -32,7 +32,8 @@
     "environment":[
         {
             "name":"GLOBAL_PASSWORD",
-            "description":"Globales Passwort, das in den Client-Konfgurationsdateien angegeben wird."
+            "description":"Globales Passwort, das in den Client-Konfgurationsdateien angegeben wird.",
+            "mutable":true
         }
     ]
 }
