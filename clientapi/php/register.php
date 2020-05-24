@@ -35,8 +35,8 @@
         die;
     }
     $roomResult = $roomStmt->get_result()->fetch_assoc();
-    $insertMachineStmt = $database->prepare("INSERT INTO device (name, networklock, lastknownIPv4, requiresLogin, room, registered, devprofile_id) VALUES (?, ?, ?, 1, ?, now(), ?)");
-    $insertMachineStmt->bind_param("sissi", $_POST["name"], $_POST["inet"], $_POST["ip"], $_POST["room"], $_POST["profile_id"]);
+    $insertMachineStmt = $database->prepare("INSERT INTO device (name, networklock, lastknownIPv4, requiresLogin, room, registered, devprofile_id, teacher) VALUES (?, ?, ?, 1, ?, now(), ?, ?)");
+    $insertMachineStmt->bind_param("sissi", $_POST["name"], $_POST["inet"], $_POST["ip"], $_POST["room"], $_POST["profile_id"], $_POST["teacher"]);
     if (!$insertMachineStmt->execute()) {
         echo "error";
         die;
