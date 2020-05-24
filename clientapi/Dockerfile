@@ -6,7 +6,7 @@ ENV VERSION "1"
 
 USER root
 
-RUN apt-get update && apt-get install -y --no-install-recommends nginx php-fpm php-mysql wakeonlan
+RUN apt-get update && apt-get install -y --no-install-recommends nginx php-fpm php-mysql wakeonlan openssl
 
 COPY php/* /var/www/html/
 COPY default /etc/nginx/sites-enabled/
