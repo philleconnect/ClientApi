@@ -10,6 +10,12 @@ trap shutdown SIGTERM
 # start services:
 service php7.3-fpm start
 
+# store envvars
+sed -i "s|REPLACE_MYSQL_USER|$MYSQL_USER|g" /var/www/html/config.php
+sed -i "s|REPLACE_MYSQL_PASSWORD|$MYSQL_PASSWORD|g" /var/www/html/config.php
+sed -i "s|REPLACE_MYSQL_DATABASE|$MYSQL_DATABASE|g" /var/www/html/config.php
+sed -i "s|REPLACE_GLOBAL_PASSWORD|$GLOBAL_PASSWORD|g" /var/www/html/config.php
+
 # generate https key and certificate
 if [ ! -f /etc/clientapi/privkey.pem ]; then
     openssl genrsa -out /etc/clientapi/privkey.pem 2048
