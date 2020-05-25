@@ -58,7 +58,7 @@
         return $result["num"] == 1;
     }
     // Loads the user id for a given username
-    function loadUserId($suername) {
+    function loadUserId($username) {
         global $database;
         $stmt = $database->prepare("SELECT COUNT(*) AS num, id FROM people WHERE username = ?");
         $stmt->bind_param("s", $username);
@@ -84,7 +84,7 @@
     // Returns data for a given mac address
     function loadMachineData($mac) {
         global $database;
-        $stmt = $database->prepare("SELECT name, comment, registered, networklock, room, requiresLogin, lastknownIPv4, devprofile_id, teacher FROM devices D INNER JOIN hardwareidentifier HWI ON HWI.device_id = D.id WHERE HWI.address = ?");
+        $stmt = $database->prepare("SELECT id, name, comment, registered, networklock, room, requiresLogin, lastknownIPv4, devprofile_id, teacher FROM device D INNER JOIN hardwareidentifier HWI ON HWI.device_id = D.id WHERE HWI.address = ?");
         $stmt->bind_param("s", $mac);
         if (!$stmt->execute()) {
             return false;
@@ -93,10 +93,10 @@
         return $response->fetch_assoc();
     }
     // Updates IP address for a given machine id
-    function updateIp($machine, $ip) {
+    function updateIp($id, $ip) {
         global $database;
-        $stmt = $database->prepare("UPDATE devices SET lastknownIPv4 = ? WHERE id = ?");
-        $stmt->bind_param("si", $machine, $ip);
+        $stmt = $database->prepare("UPDATE device SET lastknownIPv4 = ? WHERE id = ?");
+        $stmt->bind_param("si", $ip, $id);
         return $stmt->execute();
     }
     // Returns all groups of a device profile
@@ -124,7 +124,7 @@
             )
         );
         $context = stream_context_create($options);
-        return file_get_contents("http://pc_admin:84/api/public/usercheck/".$id, false, $context) == "SUCCESS";
+        return file_get_contents("http://pc_admin/api/public/usercheck/".$uid, false, $context) == "SUCCESS";
     }
     // Calls ipfire update function on main backend
     function updateIpfire() {
@@ -136,6 +136,6 @@
             )
         );
         $context = stream_context_create($options);
-        return file_get_contents("http://pc_admin:84/api/public/ipfire", false, $context) == "SUCCESS";
+        return file_get_contents("http://pc_admin/api/public/ipfire", false, $context) == "SUCCESS";
     }
 ?>

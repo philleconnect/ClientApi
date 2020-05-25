@@ -29,7 +29,7 @@
     } else {
         // Update stored IP if changed
         if ($config['lastknownIPv4'] != $_POST['ip']) {
-            updateIp($_POST["machine"], $_POST["ip"]);
+            updateIp($config["id"], $_POST["ip"]);
         }
     }
     // Switch request
@@ -40,7 +40,7 @@
             foreach ($allowedGroups as $group) {
                 $groupString .= $groupString == "" ? "(".$group : ",".$group;
             }
-            $groupString .= ")";
+            if ($groupString != "") $groupString .= ")";
             $stmt = $database->prepare("SELECT DISTINCT firstname, lastname, username FROM people P INNER JOIN people_has_groups PHG ON PHG.people_id = P.id WHERE PHG.group_id IN ".$groupString);
             if (!$stmt->execute()) {
                 echo "error";
@@ -51,6 +51,7 @@
             while ($row = $result->fetch_assoc()) {
                 array_push($data, $row["firstname"]." ".$row["lastname"]." (".$row["username"].")");
             }
+            sort($data);
             $data = (object)$data;
             echo json_encode($data);
             break;
@@ -62,8 +63,8 @@
                 die;
             }
             $response = $stmt->get_result()->fetch_assoc();
-            $updateStmt = $database->prepare("UPDATE devices SET networklock = ? WHERE id = ?");
-            $updateStmt->bind_param("si", $response["networklockDefault"], $response["id"]);
+            $updateStmt = $database->prepare("UPDATE device SET networklock = ? WHERE id = ?");
+            $updateStmt->bind_param("ii", $response["networklockDefault"], $response["id"]);
             if (!$updateStmt->execute()) {
                 echo "error";
                 die;
@@ -109,7 +110,7 @@
                 echo "notsame";
                 die;
             }
-            $stmt = $database->prepare("UPDATE userpassword SET unix_hash = ?, samba_hash = ? WHERE people_id = ?");
+            $stmt = $database->prepare("UPDATE userpassword SET unix_hash = ?, smb_hash = ? WHERE people_id = ?");
             $stmt->bind_param("sss", unix($_POST["newpw"]), samba($_POST["newpw"]), $id);
             if (!$stmt->execute()) {
                 addPasswordChangeLog($id, $_POST["machine"], 1);
@@ -156,7 +157,7 @@
                 echo "notsame";
                 die;
             }
-            $stmt = $database->prepare("UPDATE userpassword SET unix_hash = ?, samba_hash = ? WHERE people_id = ?");
+            $stmt = $database->prepare("UPDATE userpassword SET unix_hash = ?, smb_hash = ? WHERE people_id = ?");
             $stmt->bind_param("sss", unix($_POST["newpw"]), samba($_POST["newpw"]), $targetId);
             if (!$stmt->execute()) {
                 addPasswordResetLog($targetId, $_POST["machine"], $id, 1);
@@ -179,7 +180,7 @@
                 echo "error";
                 die;
             }
-            echo $stmt->get_result()->fetch_assoc()["infotext"];
+            echo $stmt->get_result()->fetch_assoc()["comment"];
             break;
         case "config":
             if ($config["devprofile_id"] == null) {
@@ -244,10 +245,10 @@
             $id = loadDeviceId($_POST["target"]);
             $lock = $_POST["lock"] == '1' ? 1 : 0;
             if ($_POST["task"] == "room") {
-                $stmt = $database->prepare("UPDATE devices SET networklock = ? WHERE room = ? AND teacher = 0");
+                $stmt = $database->prepare("UPDATE device SET networklock = ? WHERE room = ? AND teacher = 0");
                 $stmt->bind_param("si", $_POST["roomlist"], $id);
             } else {
-                $stmt = $database->prepare("UPDATE devices SET networklock = ? WHERE id = ? AND teacher = 0");
+                $stmt = $database->prepare("UPDATE device SET networklock = ? WHERE id = ? AND teacher = 0");
                 $stmt->bind_param("ii", $lock, $id);
             }
             if (!$stmt->execute()) {
@@ -261,7 +262,7 @@
                 echo "noaccess";
                 die;
             }
-            $stmt = $database->prepare("SELECT room, machine, hardwareid, ip, ipfire FROM machines WHERE room = ? AND teacher = '0'");
+            $stmt = $database->prepare("SELECT room, name, address, lastknownIPv4, networklock FROM device D INNER JOIN hardwareidentifier HWI ON HWI.device_id = D.id WHERE room = ? AND teacher = '0'");
             $stmt->bind_param("s", $config["room"]);
             if (!$stmt->execute()) {
                 echo "error";
@@ -270,7 +271,7 @@
             $data = array();
             $result = $stmt->get_result();
             while ($response = $result->fetch_assoc()) {
-                $machineData = array($response['room'], $response['machine'], $response['ip'], $response['hardwareid'], $response['ipfire']);
+                $machineData = array($response['room'], $response['name'], $response['lastknownIPv4'], $response['hardwareid'], $response['networklock']);
                 array_push($data, $machineData);
             }
             sort($data);
@@ -285,7 +286,7 @@
             }
             break;
         case "checkteacher":
-            $stmt = $database->prepare("SELECT teacher FROM devices WHERE lastknownIPv4 = ?");
+            $stmt = $database->prepare("SELECT teacher FROM device WHERE lastknownIPv4 = ?");
             $stmt->bind_param("s", $_POST["req"]);
             if (!$stmt->execute()) {
                 echo "noaccess";
@@ -294,7 +295,7 @@
             echo $response["teacher"] == 1 ? "success" : "noaccess";
             break;
         case "checkinet":
-            $stmt = $database->prepare("SELECT networklock FROM devices D INNER JOIN hardwareidentifier HW ON D.id = HW.device_id WHERE HW.address = ?");
+            $stmt = $database->prepare("SELECT networklock FROM device D INNER JOIN hardwareidentifier HW ON D.id = HW.device_id WHERE HW.address = ?");
             $stmt->bind_param("s", $_POST["hwaddr"]);
             if (!$stmt->execute()) {
                 echo "error";
