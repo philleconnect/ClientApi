@@ -28,7 +28,7 @@
         }
         $response = $stmt->get_result();
         $result = $response->fetch_assoc();
-        if (password_verify($password, $result["unix_hash"])) {
+        if (check_unix($password, $result["unix_hash"])) {
             return true;
         }
         return false;

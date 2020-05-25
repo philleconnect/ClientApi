@@ -227,7 +227,7 @@
                 array('paththree', "Laufwerk Z"),
                 array('infotext', $result['comment']),
                 array('room', $config['room']),
-                array('machinename', $config['machine']),
+                array('machinename', $config['name']),
                 array('groupfolders', $groupfolders));
             if ($config['requiresLogin'] == '0') {
                 array_push($data, array('servicemode', 'noPasswordRequired'));

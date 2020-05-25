@@ -2,6 +2,7 @@
 /*  Backend for PhilleConnect client registration
     © 2017 - 2020 Johannes Kreutz.*/
     require "dbconnect.php";
+    require "hash.php";
     require "functions.php";
     if (!isUserUnique($_POST["uname"])) {
         echo "error";
