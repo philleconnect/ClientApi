@@ -3,14 +3,15 @@
     function getUserPermissions($username, $mac) {
         global $database;
         $did = loadDeviceId($mac);
-        $stmt = $database->prepare("SELECT PE.name, G.id FROM permission P INNER JOIN groups_has_permission GPH ON P.id = GHP.permission_id INNER JOIN groups P ON GHP.group_id = G.id INNER JOIN people_has_groups PHG ON G.id = PHG.group_id INNER JOIN people P ON PHG.people_id = P.id WHERE P.username = ?");
+        $stmt = $database->prepare("SELECT P.detail, G.id FROM permission P INNER JOIN groups_has_permission GHP ON P.id = GHP.permission_id INNER JOIN groups G ON GHP.group_id = G.id INNER JOIN people_has_groups PHG ON G.id = PHG.group_id INNER JOIN people PPL ON PHG.people_id = PPL.id WHERE PPL.username = ?");
         $stmt->bind_param("s", $username);
         if ($stmt->execute()) {
             $permissions = [];
-            while ($row = $stmt->get_result()->fetch_assoc()) {
-                if ($did == $row["id"]) {
-                    array_push($permissions, $row["name"]);
-                }
+            $response = $stmt->get_result();
+            while ($row = $response->fetch_assoc()) {
+                //if ($did == $row["id"]) {
+                    array_push($permissions, $row["detail"]);
+                //}
             }
             return $permissions;
         } else {
@@ -22,7 +23,11 @@
         global $database;
         $stmt = $database->prepare("SELECT unix_hash FROM userpassword UP INNER JOIN people P ON UP.people_id = P.id WHERE P.username = ?");
         $stmt->bind_param("s", $username);
-        $result = $stmt->get_result()->fetch_assoc();
+        if (!$stmt->execute()) {
+            return false;
+        }
+        $response = $stmt->get_result();
+        $result = $response->fetch_assoc();
         if (password_verify($password, $result["unix_hash"])) {
             return true;
         }
@@ -36,7 +41,8 @@
         if (!$stmt->execute()) {
             return false;
         }
-        $result = $stmt->get_result()->fetch_assoc();
+        $response = $stmt->get_result();
+        $result = $response->fetch_assoc();
         return $result["num"] == 1;
     }
     // Returns if the given mac address belongs to a registered machine
@@ -47,7 +53,8 @@
         if (!$stmt->execute()) {
             return false;
         }
-        $result = $stmt->get_result()->fetch_assoc();
+        $response = $stmt->get_result();
+        $result = $response->fetch_assoc();
         return $result["num"] == 1;
     }
     // Loads the user id for a given username
@@ -58,18 +65,20 @@
         if (!$stmt->execute()) {
             return false;
         }
-        $result = $stmt->get_result()->fetch_assoc();
+        $response = $stmt->get_result();
+        $result = $response->fetch_assoc();
         return $result["num"] == 1 ? $result["id"] : false;
     }
     // Loads the device id for a given mac address
     function loadDeviceId($mac) {
         global $database;
-        $stmt = $database->prepare("SELECT if FROM devices D INNER JOIN hardwareidentifier HWI ON HWI.device_id = D.id WHERE HWI.address = ?");
+        $stmt = $database->prepare("SELECT id FROM device D INNER JOIN hardwareidentifier HWI ON HWI.device_id = D.id WHERE HWI.address = ?");
         $stmt->bind_param("s", $mac);
         if (!$stmt->execute()) {
             return false;
         }
-        $result = $stmt->get_result()->fetch_assoc();
+        $response = $stmt->get_result();
+        $result = $response->fetch_assoc();
         return $result["id"];
     }
     // Returns data for a given mac address
@@ -80,7 +89,8 @@
         if (!$stmt->execute()) {
             return false;
         }
-        return $stmt->get_result()->fetch_assoc();
+        $response = $stmt->get_result();
+        return $response->fetch_assoc();
     }
     // Updates IP address for a given machine id
     function updateIp($machine, $ip) {
