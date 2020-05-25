@@ -19,7 +19,7 @@
         global $database;
         $id = loadDeviceId($machine);
         $stmt = $database->prepare("INSERT INTO localLoginLog (people_id, device_id, timestamp, info, type, affected) VALUES (?, ?, now(), ?, ?, ?)");
-        $stmt->bind_param("sisi", $uid, $id, strval($status), $type, $master);
+        $stmt->bind_param("sisi", $uid, $id, strval($status), 2, $master);
         if (!$stmt->execute()) {
             return false;
         }
