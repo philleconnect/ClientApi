@@ -218,7 +218,7 @@
                 array('networkfailed', "Nutzername falsch oder Netzwerkfehler."),
                 array('success', "Anmeldung erfolgreich!"),
                 array('shutdown', 300),
-                array('smbserver', $result['settings']),
+                array('smbserver', HOST_NETWORK_ADDRESS),
                 array('driveone', "X:"),
                 array('drivetwo', "Y:"),
                 array('drivethree', "Z:"),

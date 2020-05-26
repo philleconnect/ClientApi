@@ -23,7 +23,8 @@
                 "GLOBAL_PASSWORD",
                 "MYSQL_PASSWORD",
                 "MYSQL_USER",
-                "MYSQL_DATABASE"
+                "MYSQL_DATABASE",
+                "HOST_NETWORK_ADDRESS"
             ]
         }
     ],
