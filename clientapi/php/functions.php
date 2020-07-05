@@ -114,6 +114,21 @@
         }
         return $groups;
     }
+    // Returns all groups with a given permission
+    function getPermissionGroups($permission) {
+        global $database;
+        $stmt = $database->prepare("SELECT G.id FROM groups G INNER JOIN groups_has_permission GHP ON G.id = GHP.group_id INNER JOIN permission P ON P.id = GHP.permission_id WHERE P.detail = ?");
+        $stmt->bind_param("s", $permission);
+        if (!$stmt->execute()) {
+            return false;
+        }
+        $groups = [];
+        $result = $stmt->get_result();
+        while ($row = $result->fetch_assoc()) {
+            array_push($groups, $row["id"]);
+        }
+        return $groups;
+    }
     // Calls user update function on main backend
     function updateUser($uid) {
         $options = array(
