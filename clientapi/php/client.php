@@ -35,7 +35,7 @@
     // Switch request
     switch($_POST['usage']) {
         case "userlist":
-            $allowedGroups = getDeviceProfileGroups($config["devprofile_id"]);
+            $allowedGroups = $_POST["sort"] == "students" ? getPermissionGroups("pwalwrst") : getDeviceProfileGroups($config["devprofile_id"]);
             $groupString = "";
             foreach ($allowedGroups as $group) {
                 $groupString .= $groupString == "" ? "(".$group : ",".$group;
@@ -107,7 +107,7 @@
                 die;
             }
             $stmt = $database->prepare("UPDATE userpassword SET unix_hash = ?, smb_hash = ? WHERE people_id = ?");
-            $stmt->bind_param("sss", unix($_POST["newpw"]), samba($_POST["newpw"]), $id);
+            $stmt->bind_param("sss", $unix = unix($_POST["newpw"]), $samba = samba($_POST["newpw"]), $id);
             if (!$stmt->execute()) {
                 addPasswordChangeLog($id, $_POST["machine"], 1);
                 echo "error";
@@ -154,7 +154,7 @@
                 die;
             }
             $stmt = $database->prepare("UPDATE userpassword SET unix_hash = ?, smb_hash = ? WHERE people_id = ?");
-            $stmt->bind_param("sss", unix($_POST["newpw"]), samba($_POST["newpw"]), $targetId);
+            $stmt->bind_param("sss", $unix = unix($_POST["newpw"]), $samba = samba($_POST["newpw"]), $targetId);
             if (!$stmt->execute()) {
                 addPasswordResetLog($targetId, $_POST["machine"], $id, 1);
                 echo "error";
