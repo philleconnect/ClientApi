@@ -213,7 +213,7 @@
                 array('wrongcredentials', "Nutzername oder Passwort falsch."),
                 array('networkfailed', "Nutzername falsch oder Netzwerkfehler."),
                 array('success', "Anmeldung erfolgreich!"),
-                array('shutdown', 300),
+                array('shutdown', "300"),
                 array('smbserver', HOST_NETWORK_ADDRESS),
                 array('driveone', "X:"),
                 array('drivetwo', "Y:"),
@@ -224,7 +224,8 @@
                 array('infotext', $result['comment']),
                 array('room', $config['room']),
                 array('machinename', $config['name']),
-                array('groupfolders', $groupfolders));
+                array('groupfolders', $groupfolders),
+                array('isteachermachine', strval($config["teacher"])));
             if ($config['requiresLogin'] == '0') {
                 array_push($data, array('servicemode', 'noPasswordRequired'));
             } else {
