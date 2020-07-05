@@ -11,7 +11,7 @@
     // Load config vars
     require_once "config.php";
     // Global password is to separate two installations (e.g. testing and production) in the same network
-    if ($_POST['globalpw'] != GLOBAL_PASSWORD) {
+    if ($_POST["globalpw"] != GLOBAL_PASSWORD) {
         echo "!";
         die;
     }
@@ -23,17 +23,17 @@
     // Load machines configuration profile
     $config = loadMachineData($_POST["machine"]);
     // Check if client reports correct ip
-    if ($_POST['ip'] != $_SERVER['REMOTE_ADDR']) {
-        echo 'noaccess';
+    if ($_POST["ip"] != $_SERVER["REMOTE_ADDR"]) {
+        echo "noaccess";
         die;
     } else {
         // Update stored IP if changed
-        if ($config['lastknownIPv4'] != $_POST['ip']) {
+        if ($config["lastknownIPv4"] != $_POST["ip"]) {
             updateIp($config["id"], $_POST["ip"]);
         }
     }
     // Switch request
-    switch($_POST['usage']) {
+    switch($_POST["usage"]) {
         case "userlist":
             $allowedGroups = $_POST["sort"] == "students" ? getPermissionGroups("pwalwrst") : getDeviceProfileGroups($config["devprofile_id"]);
             $groupString = "";

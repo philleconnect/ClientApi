@@ -36,12 +36,28 @@
         die;
     }
     $roomResult = $roomStmt->get_result()->fetch_assoc();
+    $willSetProfile = false;
     if ($roomResult["num"] == 1) {
+        $willSetProfile = true;
         $insertMachineStmt = $database->prepare("INSERT INTO device (name, networklock, lastknownIPv4, requiresLogin, room, registered, devprofile_id, teacher) VALUES (?, ?, ?, 1, ?, now(), ?, ?)");
         $insertMachineStmt->bind_param("sissii", $_POST["name"], $_POST["inet"], $_POST["ip"], $_POST["room"], $roomResult["id"], $_POST["teacher"]);
     } else {
-        $insertMachineStmt = $database->prepare("INSERT INTO device (name, networklock, lastknownIPv4, requiresLogin, room, registered, devprofile_id, teacher) VALUES (?, ?, ?, 1, ?, now(), 1, ?)");
-        $insertMachineStmt->bind_param("sissi", $_POST["name"], $_POST["inet"], $_POST["ip"], $_POST["room"], $_POST["teacher"]);
+        $exampleProfileName = ($_POST["teacher"] == 1) ? "Beispielprofil Lehrercomputer" : "Beispielprofil Schülercomputer";
+        $exampleProfileStmt = $database->prepare("SELECT COUNT(*) AS num, id FROM devprofile WHERE name = ?");
+        $exampleProfileStmt->bind_param("s", $exampleProfileName);
+        if (!$exampleProfileStmt->execute()) {
+            echo "error";
+            die;
+        }
+        $exampleProfileResult = $exampleProfileStmt->get_result()->fetch_assoc();
+        if ($exampleProfileResult["num"] == 1) {
+            $willSetProfile = true;
+            $insertMachineStmt = $database->prepare("INSERT INTO device (name, networklock, lastknownIPv4, requiresLogin, room, registered, devprofile_id, teacher) VALUES (?, ?, ?, 1, ?, now(), ?, ?)");
+            $insertMachineStmt->bind_param("sissii", $_POST["name"], $_POST["inet"], $_POST["ip"], $_POST["room"], $exampleProfileResult["id"], $_POST["teacher"]);
+        } else {
+            $insertMachineStmt = $database->prepare("INSERT INTO device (name, networklock, lastknownIPv4, requiresLogin, room, registered, teacher) VALUES (?, ?, ?, 1, ?, now(), ?)");
+            $insertMachineStmt->bind_param("sissi", $_POST["name"], $_POST["inet"], $_POST["ip"], $_POST["room"], $_POST["teacher"]);
+        }
     }
     if (!$insertMachineStmt->execute()) {
         echo "error";
@@ -54,5 +70,5 @@
         echo "error";
         die;
     }
-    echo $roomResult["num"] == 1 ? "success_room_both" : "success";
+    echo $willSetProfile ? "success_room_both" : "success";
 ?>
