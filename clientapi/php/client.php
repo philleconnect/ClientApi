@@ -46,15 +46,15 @@
                 echo "error";
                 die;
             }
-            $data = [];
+            $data = array();
             $result = $stmt->get_result();
             while ($row = $result->fetch_assoc()) {
-                array_push($data, $row["firstname"]." ".$row["lastname"]." (".$row["username"].")");
+                array_push($data, array($row["firstname"], $row["lastname"], $row["username"]));
             }
             sort($data);
             $data = (object)$data;
             echo json_encode($data);
-            break;
+            die;
         case "login":
             $stmt = $database->prepare("SELECT DP.networklockDefault, D.id FROM devprofile DP INNER JOIN device D ON D.devprofile_id = DP.id INNER JOIN hardwareidentifier HWI ON HWI.device_id = D.id WHERE HWI.address = ?");
             $stmt->bind_param("s", $_POST["machine"]);
@@ -75,25 +75,21 @@
                 die;
             }
             $id = loadUserId($_POST["uname"]);
-            if (!checkUserPassword($_POST["uname"], $_POST["password"])) {
-                addLoginLog($id, $_POST["machine"], 10);
-                echo "1";
-                die;
-            }
             $permissions = getUserPermissions($_POST["uname"], $_POST["machine"]);
-            if ($config["teacher"] == "1" && in_array("teachlgn", $permissions)) {
+            if ($config["teacher"] == "1" && in_array("teachlgn", $permissions) || $config["teacher"] == "0" && in_array("studelgn", $permissions)) {
                 addLoginLog($id, $_POST["machine"], 0);
-                echo "0";
-                die;
-            }
-            if ($config["teacher"] == "0" && in_array("studelgn", $permissions)) {
-                addLoginLog($id, $_POST["machine"], 0);
-                echo "0";
-                die;
+                if (!checkUserPassword($_POST["uname"], $_POST["password"])) {
+                    addLoginLog($id, $_POST["machine"], 10);
+                    echo "1";
+                    die;
+                } else {
+                    echo "0";
+                    die;
+                }
             }
             addLoginLog($id, $_POST["machine"], 11);
             echo "2";
-            break;
+            die;
         case "pwchange":
             if (!isUserUnique($_POST["uname"])) {
                 echo "error";
@@ -124,7 +120,7 @@
             }
             addPasswordChangeLog($id, $_POST["machine"], 0);
             echo "success";
-            break;
+            die;
         case "pwreset":
             if (!isUserUnique($_POST["teacheruser"]) || !isUserUnique($_POST["uname"])) {
                 echo "error";
@@ -171,7 +167,7 @@
             }
             addPasswordResetLog($targetId, $_POST["machine"], $id, 0);
             echo "success";
-            break;
+            die;
         case "notices":
             // Deliver notes
             $stmt = $database->prepare("SELECT comment FROM devprofile WHERE id = ?");
@@ -181,7 +177,7 @@
                 die;
             }
             echo $stmt->get_result()->fetch_assoc()["comment"];
-            break;
+            die;
         case "config":
             if ($config["devprofile_id"] == null) {
                 echo "noconfig";
@@ -201,7 +197,7 @@
                 die;
             }
             $response = $groupfolderStmt->get_result();
-            $groupfolders = [];
+            $groupfolders = array();
             $startingLetter = ord("J");
             while ($row = $response->fetch_assoc()) {
                 $letter = chr($startingLetter).":\\";
@@ -236,7 +232,7 @@
             }
             $data = (object)$data;
             echo json_encode($data);
-            break;
+            die;
         case "internet":
             if ($config["teacher"] != "1") {
                 echo "noaccess";
@@ -256,7 +252,7 @@
                 die;
             }
             updateIpfire();
-            break;
+            die;
         case "roomlist":
             if ($config["teacher"] != "1") {
                 echo "noaccess";
@@ -277,14 +273,14 @@
             sort($data);
             $data = (object)$data;
             echo json_encode($data);
-            break;
+            die;
         case "wake":
             if ($config['teacher'] == '1') {
                 shell_exec('wakeonlan -i'.$_POST['targetIp'].' -p 9 '.$_POST['targetMac']);
             } else {
                 echo 'noaccess';
             }
-            break;
+            die;
         case "checkteacher":
             $stmt = $database->prepare("SELECT teacher FROM device WHERE lastknownIPv4 = ?");
             $stmt->bind_param("s", $_POST["req"]);
@@ -293,7 +289,7 @@
             }
             $response = $stmt->get_result()->fetch_assoc();
             echo $response["teacher"] == 1 ? "success" : "noaccess";
-            break;
+            die;
         case "checkinet":
             $stmt = $database->prepare("SELECT networklock FROM device D INNER JOIN hardwareidentifier HW ON D.id = HW.device_id WHERE HW.address = ?");
             $stmt->bind_param("s", $_POST["hwaddr"]);
@@ -301,7 +297,7 @@
                 echo "error";
             }
             echo $stmt->get_result()->fetch_assoc()['networklock'];
-            break;
+            die;
         default:
             echo "!";
     }
