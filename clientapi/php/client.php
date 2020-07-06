@@ -268,7 +268,7 @@
             $data = array();
             $result = $stmt->get_result();
             while ($response = $result->fetch_assoc()) {
-                $machineData = array($response['room'], $response['name'], $response['lastknownIPv4'], $response['hardwareid'], $response['networklock']);
+                $machineData = array($response['room'], $response['name'], $response['lastknownIPv4'], $response['address'], $response['networklock']);
                 array_push($data, $machineData);
             }
             sort($data);
