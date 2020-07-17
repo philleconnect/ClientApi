@@ -3,7 +3,7 @@
         {
             "name":"clientapi",
             "hostname":"clientapi",
-            "url":"https://jkm-marburg.de/pcsm/clientapi/clientapi.tar.gz",
+            "url":"https://github.com/philleconnect/ClientApi/releases/download/1.0.0/clientapi.tar.gz",
             "ports":[
                 {
                     "external":447,
