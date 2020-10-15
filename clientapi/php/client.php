@@ -77,12 +77,12 @@
             $id = loadUserId($_POST["uname"]);
             $permissions = getUserPermissions($_POST["uname"], $_POST["machine"]);
             if ($config["teacher"] == "1" && in_array("teachlgn", $permissions) || $config["teacher"] == "0" && in_array("studelgn", $permissions)) {
-                addLoginLog($id, $_POST["machine"], 0);
                 if (!checkUserPassword($_POST["uname"], $_POST["password"])) {
                     addLoginLog($id, $_POST["machine"], 10);
                     echo "1";
                     die;
                 } else {
+                    addLoginLog($id, $_POST["machine"], 0);
                     echo "0";
                     die;
                 }
